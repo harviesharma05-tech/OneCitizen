@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UBDP — {{ user.perms.label }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='ubdp.css') }}">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <h1>UBDP<span>Unified Beneficiary Data Platform</span></h1>
+
+    <div class="who">
+      <b>{{ user.name }}</b>
+      <span>{{ user.perms.label }}{% if user.department %} · {{ user.department }}{% endif %}</span>
+    </div>
+
+    <nav id="nav">
+      <a href="#" class="on" data-view="citizens">Citizen register</a>
+      {% if user.perms.can_review_merges %}
+      <a href="#" data-view="review">Merge review</a>
+      {% else %}<a class="locked" title="Not available for your role">Merge review</a>{% endif %}
+      {% if user.perms.can_see_fraud %}
+      <a href="#" data-view="fraud">Flagged benefits</a>
+      {% else %}<a class="locked" title="Not available for your role">Flagged benefits</a>{% endif %}
+      <a href="#" data-view="schemes">Scheme catalogue</a>
+      <a href="#" data-view="audit">Access log</a>
+    </nav>
+
+    <footer><a href="/logout">Sign out</a></footer>
+  </aside>
+
+  <main class="main">
+    <div class="head">
+      <h2 id="view-title">Citizen register</h2>
+      <p id="view-note">{{ scoped_count }} citizens are within your department scope.
+        Select a row to open the consolidated profile and its benefit history.</p>
+    </div>
+
+    {% if user.perms.can_see_impact %}
+    <div class="ledger">
+      <div><b>{{ '{:,}'.format(impact.raw_records) }}</b><span>records ingested</span></div>
+      <div class="verify"><b>{{ '{:,}'.format(impact.golden_records) }}</b><span>citizens resolved</span></div>
+      <div><b>{{ '{:,}'.format(impact.records_deduplicated) }}</b><span>duplicates removed</span></div>
+      <div class="flag"><b>₹{{ '{:,}'.format(impact.leakage_detected) }}</b><span>leakage detected</span></div>
+      <div class="flag"><b>{{ impact.high_risk_citizens }}</b><span>high-risk citizens</span></div>
+      <div><b>{{ impact.overlapping_schemes }}</b><span>overlapping schemes</span></div>
+      <div class="verify"><b>{{ '{:,}'.format(impact.new_recommendations) }}</b><span>new eligible matches</span></div>
+      <div><b>{{ accuracy.false_merge_rate_pct }}%</b><span>measured false-merge rate</span></div>
+    </div>
+    {% endif %}
+
+    <div id="view"></div>
+  </main>
+</div>
+
+<dialog id="profile">
+  <header>
+    <div><h3 id="p-name">—</h3><p id="p-sub"></p></div>
+    <button class="close" onclick="document.getElementById('profile').close()">Close</button>
+  </header>
+  <div class="modal-body" id="p-body"></div>
+</dialog>
+
+<script>
+  window.PERMS = {{ user.perms | tojson }};
+</script>
+<script src="{{ url_for('static', filename='ubdp.js') }}"></script>
+</body>
+</html>

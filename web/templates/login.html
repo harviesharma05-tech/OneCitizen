@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Unified Beneficiary Data Platform</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='ubdp.css') }}">
+</head>
+<body>
+<div class="gate">
+  <div class="gate-brief">
+    <h1>One citizen, one record, across every department.</h1>
+    <p>Welfare data sits in separate departmental systems, so the same person
+       appears many times over and nobody can see the whole picture. This platform
+       resolves those records into a single verified profile, then checks it against
+       every scheme on the books.</p>
+    <div class="figures">
+      <div><b>333</b><span>raw department records</span></div>
+      <div><b>122</b><span>citizens resolved</span></div>
+      <div><b>0%</b><span>false merges</span></div>
+      <div><b>98%</b><span>recall</span></div>
+    </div>
+  </div>
+
+  <div class="gate-form">
+    <h2>Sign in</h2>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <form method="post">
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Sign in</button>
+    </form>
+
+    <div class="hint">
+      <p>Demo accounts — pick one to see how access changes by role. Password is <span class="mono">demo</span>.</p>
+      <div class="accounts">
+        {% for uname, u in users.items() %}
+        <button type="button" data-user="{{ uname }}">
+          <span class="mono">{{ uname }}</span>
+          <em>{{ u.name }}{% if u.department %} · {{ u.department }}{% endif %}</em>
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('[data-user]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.getElementById('username').value = b.dataset.user;
+    document.getElementById('password').value = 'demo';
+    document.getElementById('password').focus();
+  });
+});
+</script>
+</body>
+</html>
